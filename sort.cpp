@@ -338,6 +338,54 @@ void quick_sort3(T arr[],int n)
 	_quick_sort3(arr,0,n-1);
 }
 
+template<typename T>
+void _shiftdown(T arr[],int n,int k)
+{
+    while( 2*k+1 < n ){
+        int j = 2*k+1;
+        if( j+1 < n && arr[j+1] > arr[j] )
+            j += 1;
+
+        if( arr[k] >= arr[j] )break;
+
+        swap( arr[k] , arr[j] );
+        k = j;
+    }
+}
+//优化后版本
+template<typename T>
+void _shiftdown2(T arr[],int n,int k)
+{
+    T e = arr[k];
+    while( 2*k+1 < n ){
+        int j = 2*k+1;
+        if( j+1 < n && arr[j+1] > arr[j] )
+            j += 1;
+
+        if( e >= arr[j] ) break;
+
+        arr[k] = arr[j];
+        k = j;
+    }
+
+    arr[k] = e;
+}
+
+template<typename T>
+void heap_sort(T arr[],int n)
+{
+    // 注意，此时我们的堆是从0开始索引的
+    // 从(最后一个元素的索引-1)/2开始
+    // 最后一个元素的索引 = n-1
+    for( int i = (n-1-1)/2 ; i >= 0 ; i -- )
+        _shiftdown(arr, n, i);
+
+    for( int i = n-1; i > 0 ; i-- ){
+        swap( arr[0] , arr[i] );
+        _shiftdown(arr, i, 0);
+    }
+}
+
 int main()
 {
 	int n = 100000;
@@ -350,6 +398,7 @@ int main()
 	int *a6 = copy_array(a,n);
 	int *a7 = copy_array(a,n);
 	int *a8 = copy_array(a,n);
+	int *a9 = copy_array(a,n);
 	testSort("select_sort",select_sort,a,n);
 	testSort("insert_sort",insert_sort,a1,n);
 	testSort("hill_sort",hill_sort,a2,n);
@@ -359,6 +408,7 @@ int main()
 	testSort("quick_sort",quick_sort,a6,n);
 	testSort("quick_sort2",quick_sort2,a7,n);
 	testSort("quick_sort3",quick_sort3,a8,n);
+	testSort("heap_sort",heap_sort,a9,n);
 	delete []a;
 	delete []a1;
 	delete []a2;
@@ -368,5 +418,6 @@ int main()
 	delete []a6;
 	delete []a7;
 	delete []a8;
+	delete []a9;
 	return 0;
 }
