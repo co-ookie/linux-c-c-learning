@@ -2,7 +2,7 @@
 #include<time.h>
 #include<string.h>
 #include<stdlib.h>
-
+#include<assert.h>
 typedef struct _node 
 {
 	int data; //数据域，一般是结构体
@@ -85,6 +85,112 @@ inorder_traversal_2(nodeptr root)
 	
 }
 
+//查找方法
+nodeptr
+search_tree(nodeptr root,int data)
+{
+	
+	nodeptr temp = root;
+	while(temp != NULL)
+	{
+		if(temp->data == data) return temp;
+		if(temp->data > data)
+		{
+			temp = temp->l_child;
+		}
+		else
+		{
+			temp = temp->r_child;
+		}
+	}
+	return NULL;
+}
+
+nodeptr
+search_max_l_tree(nodeptr root)
+{
+	assert(root);
+	nodeptr temp = root;
+	while(temp != NULL && temp->r_child != 	NULL)
+	{
+		temp=temp->r_child;
+	}
+	return temp;
+}
+
+nodeptr
+search_min_r_tree(nodeptr root)
+{
+	assert(root);
+	nodeptr temp =root;
+	while(temp != NULL && temp->l_child != 	NULL)
+	{
+		temp=temp->l_child;
+	}
+	return temp;
+}
+nodeptr delete_node(nodeptr root,int data);
+
+void
+cut_link_from_tree(nodeptr node)
+{
+	if(node->l_child == NULL && node->r_child == NULL)
+	{
+		if(node->parent->l_child == node)
+			node->parent->l_child = NULL;
+		else if(node->parent->r_child == node)
+			node->parent->r_child = NULL;
+	}
+	else
+	{
+		if(node->l_child != NULL)
+		{
+			if(node->parent->l_child == node)
+				node->parent->l_child = node->l_child;
+			else if(node->parent->r_child == node)
+				node->parent->r_child = node->l_child;
+		}
+		else if(node->r_child != NULL)
+		{
+			if(node->parent->l_child == node)
+				node->parent->l_child = node->r_child;
+			else if(node->parent->r_child == node)
+				node->parent->r_child = node->r_child;
+		}
+	}
+}
+nodeptr
+delete_node(nodeptr root,int data)
+{
+	nodeptr ret = search_tree(root,data);
+	nodeptr replace = NULL;
+	if(ret == NULL)
+	{
+		printf("no such data\n");
+		return root;
+	}
+	
+	if(ret->l_child != NULL )
+	{
+		replace = search_max_l_tree(ret);
+	}
+	else if(ret->r_child != NULL)
+	{
+		replace = search_min_r_tree(ret);
+	}
+	else
+	{
+		cut_link_from_tree(ret);
+		free(ret);
+		//删除的是根节点，相当于为空树
+		if(ret == root) return NULL;
+		else return root;
+	}
+	cut_link_from_tree(replace);
+	ret->data = replace->data;
+	free(replace);		
+}
+
 int main(int argc,char *argv[])
 {
 	if(argc != 2)
@@ -102,5 +208,31 @@ int main(int argc,char *argv[])
 	}
 	inorder_traversal(root);
 	printf("\n");
+	
+#if 0	
+	printf("pls input search data:");
+	int data;
+	scanf("%d",&data);
+	nodeptr ret = search_tree(root,data);
+	if(ret == NULL)
+	{
+		printf("not found.\n");
+	}
+	else
+	{
+		printf("found data[%d] local:%p",ret->data,ret);
+	}
+#endif
+	while(1)
+	{
+		printf("pls input delete data:");
+		int data;
+		scanf("%d",&data);
+		getchar();
+		nodeptr ret = delete_node(root,data);
+		inorder_traversal(ret);
+		printf("\n");
+	}
+	
 	return 0;
 }
